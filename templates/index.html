@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charging Queue Optimizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EV Charging Queue Optimizer</h1>
+            <div class="controls">
+                <button id="startBtn" class="btn btn-primary">Start Simulation</button>
+                <button id="stopBtn" class="btn btn-danger" disabled>Stop Simulation</button>
+                <button id="resetBtn" class="btn btn-secondary">Reset</button>
+                <div class="simulation-speed">
+                    <label for="speedSlider">Speed:</label>
+                    <input type="range" id="speedSlider" min="1" max="10" value="5">
+                    <span id="speedValue">5x</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #2196F3;"></div>
+                        <span>EV (Normal)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4CAF50;"></div>
+                        <span>Charging Station</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #F44336;"></div>
+                        <span>EV (Low Battery)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FFC107;"></div>
+                        <span>EV (Waiting in Queue)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4CAF50;"></div>
+                        <span>EV (Charging)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #FF9800;"></div>
+                        <span>EV (Abandoned)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="panel">
+                    <h3>Simulation Settings</h3>
+                    <div class="form-group">
+                        <label for="numEVs">Number of EVs:</label>
+                        <input type="number" id="numEVs" min="10" max="200" value="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="numStations">Number of Stations:</label>
+                        <input type="number" id="numStations" min="5" max="50" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="numNodes">Number of Nodes:</label>
+                        <input type="number" id="numNodes" min="20" max="100" value="80">
+                    </div>
+                    <div class="form-group">
+                        <label for="numRoutes">Number of Routes:</label>
+                        <input type="number" id="numRoutes" min="50" max="500" value="240">
+                    </div>
+                    <button id="generateBtn" class="btn btn-primary">Generate New Data</button>
+                </div>
+                
+                <div class="panel">
+                    <h3>Performance Metrics</h3>
+                    <div class="metric">
+                        <div class="metric-name">Average Wait Time:</div>
+                        <div id="avgWaitTime" class="metric-value">0s</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-name">Max Queue Length:</div>
+                        <div id="maxQueueLength" class="metric-value">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-name">Completion Rate:</div>
+                        <div id="completionRate" class="metric-value">0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-name">Abandoned Rate:</div>
+                        <div id="abandonedRate" class="metric-value">0%</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-name">Optimization Time:</div>
+                        <div id="optimizationTime" class="metric-value">0ms</div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>Charts</h3>
+                    <div class="chart-container">
+                        <canvas id="waitTimeChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="queueLengthChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>EV Journey Timeline</h3>
+                    <div class="form-group">
+                        <label for="evSelector">Select EV:</label>
+                        <select id="evSelector" style="width: 100%; padding: 8px; margin-bottom: 10px;"></select>
+                    </div>
+                    <div class="journey-logs-container">
+                        <div id="journeyTimeline" class="timeline">
+                            <p class="no-ev-selected">Select an EV to view its journey timeline.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel">
+                    <h3>Optimization Logs</h3>
+                    <div class="logs-container">
+                        <pre id="optimizationLogs">No optimization logs yet.</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logs.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/journey.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
+</body>
+</html>
