@@ -10,7 +10,7 @@ parser.add_argument('--clear-cache', action='store_true', help='Clear existing c
 args, _ = parser.parse_known_args()
 
 app = Flask(__name__)
-app.config['TRUSTED_HOSTS'] = ['evcharge.duckdns.org']
+app.config['TRUSTED_HOSTS'] = ['evcharge.duckdns.org', 'localhost']
 config.validate_required_config()
 
 if args.clear_cache:
