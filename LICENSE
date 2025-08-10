@@ -1,0 +1,42 @@
+Custom License for EV Charging Queue Optimizer
+Copyright (c) 2025 [Your Name or Organization]
+Definitions
+
+"The Software" refers to the EV Charging Queue Optimizer codebase, including all source code, documentation, and associated files contained in this repository.
+"The Algorithm" refers specifically to the charging station assignment optimization methodology implemented in the Software, primarily found in the file models/optimization.py.
+"The Patent Application" refers to the patent application covering The Algorithm which has been published but not yet granted.
+"Commercial Use" means use of the Software or Algorithm, in whole or in part, in any capacity intended for or directed toward commercial advantage or monetary compensation.
+
+Permissions
+Educational and Research Use
+Permission is hereby granted, free of charge, to any person obtaining a copy of the Software, to use it for educational, academic, and non-commercial research purposes, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+Any academic publications resulting from the use of the Software must cite the repository and relevant patent application.
+
+Personal Use
+Personal, non-commercial use of the Software is permitted, provided that no part of the Algorithm is implemented in any commercial product or service.
+Restrictions
+Patent Rights
+The Algorithm implemented in this Software is subject to a pending patent application. No rights are granted to use, implement, or incorporate The Algorithm in any commercial application, product, or service without explicit written permission from the patent applicant/owner.
+Commercial Use
+Commercial use of the Software and/or Algorithm requires a separate commercial license agreement. Please contact [cvbalaji19762004@gmail.com] for licensing inquiries.
+Redistribution
+Redistribution of the Software is permitted only for non-commercial, educational purposes, and must include this License file without modification.
+Derivative Works
+Creation of derivative works is permitted for educational and research purposes only, subject to the same terms as this License, and provided that:
+
+All derivative works clearly indicate that they are based on this Software.
+The Algorithm is not modified or extended in ways that would infringe on the Patent Application.
+Derivative works are not used for Commercial purposes.
+
+Disclaimer
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR PATENT APPLICANT BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Patent Notice
+The charging station assignment optimization methodology implemented in this Software, particularly in the file models/optimization.py, is the subject of a patent application that has been published but not yet granted. Implementation of this methodology in any product or service may constitute patent infringement upon grant of the patent.
+Termination
+This License automatically terminates if you fail to comply with any of its terms and conditions. Upon termination, you must destroy all copies of the Software in your possession.
+Contact
+For licensing inquiries, particularly regarding commercial use, please contact:
+[CV Balaji]
+[cvbalaji19672004@gmail.com]
