@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify, request
+from werkzeug.middleware.trusted_hosts import TrustedHostsMiddleware
 import config
 import argparse
 from utils.data_generator import generate_synthetic_data
@@ -10,7 +11,7 @@ parser.add_argument('--clear-cache', action='store_true', help='Clear existing c
 args, _ = parser.parse_known_args()
 
 app = Flask(__name__)
-app.config['TRUSTED_HOSTS'] = ['evcharge.duckdns.org', 'localhost']
+app.wsgi_app = TrustedHostsMiddleware(app.wsgi_app, allowed_hosts=['evcharge.duckdns.org', 'localhost', '3.108.5.112'])
 config.validate_required_config()
 
 if args.clear_cache:
