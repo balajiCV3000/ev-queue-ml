@@ -1,9 +1,23 @@
 from flask import Flask, render_template, jsonify, request
-from werkzeug.middleware.trusted_hosts import TrustedHostsMiddleware
 import config
 import argparse
 from utils.data_generator import generate_synthetic_data
 from models.simulation import Simulation
+
+
+class _TrustedHostsMiddleware:
+    _allowed = {'evcharge.duckdns.org', 'localhost', '3.108.5.112'}
+
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        host = environ.get('HTTP_HOST', '').split(':')[0].lower()
+        if host not in self._allowed:
+            start_response('400 Bad Request', [('Content-Type', 'text/plain')])
+            return [b'Bad Request']
+        return self.app(environ, start_response)
+
 
 parser = argparse.ArgumentParser(description='EV Queue Simulation Server')
 parser.add_argument('--no-cache', action='store_true', help='Disable data caching')
@@ -11,7 +25,7 @@ parser.add_argument('--clear-cache', action='store_true', help='Clear existing c
 args, _ = parser.parse_known_args()
 
 app = Flask(__name__)
-app.wsgi_app = TrustedHostsMiddleware(app.wsgi_app, allowed_hosts=['evcharge.duckdns.org', 'localhost', '3.108.5.112'])
+app.wsgi_app = _TrustedHostsMiddleware(app.wsgi_app)
 config.validate_required_config()
 
 if args.clear_cache:
