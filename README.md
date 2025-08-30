@@ -2,6 +2,8 @@
 
 A simulation platform for optimizing electric vehicle charging station assignments based on location, wait times, and energy needs.
 
+![EV Charging Queue Optimizer](img/image.png)
+
 ---
 
 ## ⚠️ Patent Notice
@@ -45,6 +47,70 @@ The algorithm evaluates multiple factors to assign EVs to optimal charging stati
 - **Frontend:** HTML, CSS, JavaScript, Chart.js
 - **Maps API:** Google Maps Platform
 - **Data Processing:** NumPy
+
+## Project Structure
+
+```
+├── app.py                  # Main Flask application
+├── config.py               # Configuration settings
+├── models/
+│   ├── ev.py               # Electric vehicle model
+│   ├── station.py          # Charging station model
+│   ├── simulation.py       # Simulation engine (Strategy pattern)
+│   ├── optimization.py     # Charging assignment algorithm (patent pending)
+│   └── maps_service.py     # Google Maps integration
+├── static/
+│   ├── css/                # Stylesheets
+│   └── js/                 # Client-side scripts
+├── templates/
+│   └── index.html          # Main UI template
+└── utils/
+    └── data_generator.py   # Synthetic data generation
+```
+
+## Installation
+
+1. Clone the repository:
+```bash
+   git clone https://github.com/yourusername/ev-charging-queue-optimizer.git
+   cd ev-charging-queue-optimizer
+```
+
+2. Install dependencies:
+```bash
+   pip install -r requirements.txt
+```
+
+3. Create a local environment file:
+```bash
+   cp env.example .env
+```
+
+4. Update `.env` values as needed:
+   - `GOOGLE_MAPS_API_KEY` for route generation
+   - `DEBUG` for local debugging (`false` by default)
+   - `BOOTSTRAP_SIMULATION` (`true` for full startup, `false` for lightweight smoke tests)
+   - `APP_ENV` and `REQUIRE_MAPS_API_KEY` for production safety checks
+
+## Usage
+
+1. Start the server:
+```bash
+   python app.py
+```
+
+2. Open `http://127.0.0.1:5000` in your browser.
+
+### Simulation Controls
+
+- **Start / Stop** — Run or pause the simulation
+- **Reset** — Return to initial state
+- **Speed** — Adjust playback (1x–10x)
+- **Generate New Data** — Create a new scenario with custom parameters:
+  - Number of EVs
+  - Number of charging stations
+  - Number of geographic nodes
+  - Number of routes
 
 ## License
 
