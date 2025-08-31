@@ -214,8 +214,16 @@ function updateMapMarkers(evs, stations) {
 }
 
 function updateMap() {
+    Object.values(evMarkers).forEach(markerInfo => {
+        markerInfo.marker.setMap(null);
+    });
+    
+    Object.values(stationMarkers).forEach(markerInfo => {
+        markerInfo.marker.setMap(null);
+    });
+    
     evMarkers = {};
     stationMarkers = {};
-
+    
     loadMapData();
 }
