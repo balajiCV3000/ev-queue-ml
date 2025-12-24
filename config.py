@@ -22,6 +22,20 @@ TIME_STEP_SECONDS = int(os.getenv("TIME_STEP_SECONDS", "60"))
 CHARGE_THRESHOLD = float(os.getenv("CHARGE_THRESHOLD", "0.2"))
 OPTIMIZATION_INTERVAL = int(os.getenv("OPTIMIZATION_INTERVAL", "10"))
 
+# Assignment policy configuration
+ASSIGNMENT_POLICY = os.getenv("ASSIGNMENT_POLICY", "greedy")
+RL_MODEL_PATH = os.getenv("RL_MODEL_PATH", "artifacts/policy_dqn.npz")
+RL_NORM_STATS_PATH = os.getenv("RL_NORM_STATS_PATH", "artifacts/norm_stats.json")
+ENABLE_STALL_RESCUE = os.getenv("ENABLE_STALL_RESCUE", "false").strip().lower() == "true"
+SIMULATE_TRAVEL_ENERGY = os.getenv("SIMULATE_TRAVEL_ENERGY", "true").strip().lower() == "true"
+# When enabled, an EV assigned to a station incurs a simulated travel delay
+# (distance / TRAVEL_SPEED_KMH) before joining the station queue, instead of
+# being teleported into the queue instantly. Defaults to off to preserve
+# existing simulation/test behavior; evaluation runs should opt in.
+SIMULATE_TRAVEL_TIME = os.getenv("SIMULATE_TRAVEL_TIME", "false").strip().lower() == "true"
+TRAVEL_SPEED_KMH = float(os.getenv("TRAVEL_SPEED_KMH", "30"))
+SIM_SEED = int(os.getenv("SIM_SEED", "42"))
+
 
 def validate_required_config():
     if REQUIRE_MAPS_API_KEY and not GOOGLE_MAPS_API_KEY:
