@@ -1,0 +1,9 @@
+{
+  "name": "baseline_eval",
+  "policies": ["greedy", "greedy_sequential", "nearest", "random"],
+  "scenarios": ["density_50"],
+  "seeds": 5,
+  "num_evs": 50,
+  "num_stations": 20,
+  "max_steps": 500
+}
