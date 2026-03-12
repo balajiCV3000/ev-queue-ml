@@ -1,0 +1,9 @@
+{
+  "name": "full_grid",
+  "policies": ["greedy", "greedy_sequential", "nearest", "random", "rl"],
+  "scenarios": ["density_50", "density_100", "rush_burst"],
+  "seeds": 30,
+  "num_evs": 50,
+  "num_stations": 20,
+  "max_steps": 1500
+}
