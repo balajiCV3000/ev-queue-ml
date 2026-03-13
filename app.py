@@ -3,10 +3,17 @@ import config
 import argparse
 from utils.data_generator import generate_synthetic_data
 from models.simulation import Simulation
+from ml.policies.registry import get_policy, list_policies
 
 
 class _TrustedHostsMiddleware:
-    _allowed = {'evcharge.duckdns.org', 'localhost', '3.108.5.112'}
+    _allowed = {
+        'evcharge.duckdns.org',
+        'localhost',
+        '127.0.0.1',
+        '::1',
+        '3.108.5.112',
+    }
 
     def __init__(self, app):
         self.app = app
@@ -50,7 +57,8 @@ def initialize_simulation():
         100, 20, 80, 240, use_cache=not args.no_cache
     )
     print("Creating simulation engine...")
-    simulation_local = Simulation(evs_local, stations_local, routes_local)
+    policy = get_policy(config.ASSIGNMENT_POLICY)
+    simulation_local = Simulation(evs_local, stations_local, routes_local, policy)
     print("Server initialization complete!")
     return evs_local, stations_local, routes_local, simulation_local
 
@@ -110,6 +118,41 @@ def get_ev_journey_log(ev_id):
     journey_log = simulation.get_ev_journey_log(ev_id)
     return jsonify({'ev_id': ev_id, 'journey_log': journey_log})
 
+
+@app.route('/api/policy')
+def get_policy_info():
+    policy = simulation.policy
+    model_loaded = getattr(policy, 'model_loaded', False)
+    fallback_active = getattr(policy, 'fallback_active', False)
+    return jsonify({
+        'active': simulation.policy_name,
+        'available': list_policies() + ['rl'],
+        'model_loaded': model_loaded,
+        'fallback_active': fallback_active,
+    })
+
+
+@app.route('/api/policy', methods=['POST'])
+def set_policy():
+    """Hot-swap assignment policy."""
+    data = request.get_json(silent=True) or {}
+    policy_name = data.get('policy')
+    if not policy_name:
+        return jsonify({'error': 'policy field required'}), 400
+
+    available = list_policies() + ['rl']
+    if policy_name not in available:
+        return jsonify({'error': f'unknown policy: {policy_name}'}), 400
+
+    new_policy = get_policy(policy_name)
+    simulation.set_policy(new_policy)
+    return jsonify({
+        'success': True,
+        'active': simulation.policy_name,
+        'model_loaded': getattr(new_policy, 'model_loaded', False),
+        'fallback_active': getattr(new_policy, 'fallback_active', False),
+    })
+
 @app.route('/api/stations')
 def get_stations():
     return jsonify([station.to_dict() for station in stations])
@@ -140,7 +183,8 @@ def regenerate_data():
     evs, stations, routes = generate_synthetic_data(num_evs, num_stations, num_nodes, num_routes, use_cache=use_cache)
     
     print("Creating new simulation engine...")
-    simulation = Simulation(evs, stations, routes)
+    policy = get_policy(config.ASSIGNMENT_POLICY)
+    simulation = Simulation(evs, stations, routes, policy)
     print("Regeneration complete!")
     
     return jsonify({
