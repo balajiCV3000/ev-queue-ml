@@ -48,11 +48,45 @@ The algorithm evaluates multiple factors to assign EVs to optimal charging stati
 - **Maps API:** Google Maps Platform
 - **Data Processing:** NumPy
 
+# EV Station Assignment RL Policy
+
+This project includes a reinforcement-learning station-assignment policy alongside the original greedy heuristic.
+
+## ML Components
+
+| Path | Purpose |
+|---|---|
+| `ml/policies/` | Strategy-pattern assignment policies (greedy, nearest, random, RL) |
+| `ml/features.py` | 19-dim feature extraction per EV-station pair |
+| `ml/env.py` | Headless Gymnasium-style environment wrapper |
+| `ml/train.py` | Double DQN training (requires `requirements-ml.txt`) |
+| `ml/evaluate.py` | CLI policy comparison |
+| `artifacts/` | Trained model weights, norm stats, model card |
+
+## Policy API
+
+- `GET /api/policy` — active policy, available policies, model load status
+- `POST /api/policy {"policy":"greedy"}` — hot-swap policy at runtime
+
+## Running Evaluations
+
+```bash
+pip install -r requirements-ml.txt
+python -m ml.evaluate --policies greedy,nearest,random --seeds 5
+```
+
+## Configuration
+
+See `env.example` for `ASSIGNMENT_POLICY`, `RL_MODEL_PATH`, `ENABLE_STALL_RESCUE`, `SIMULATE_TRAVEL_ENERGY`, and `SIM_SEED`.
+
 ## Project Structure
 
 ```
 ├── app.py                  # Main Flask application
 ├── config.py               # Configuration settings
+├── ml/                     # RL policies, training, evaluation
+├── artifacts/              # Model weights and norm stats
+├── experiments/            # Scenario configs for paired experiments
 ├── models/
 │   ├── ev.py               # Electric vehicle model
 │   ├── station.py          # Charging station model
