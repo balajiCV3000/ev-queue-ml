@@ -36,7 +36,22 @@ from ml.policies.greedy_sequential import GreedySequentialPolicy
 from ml.tracking import RewardTracker
 from models.simulation import Simulation
 
-_TOTAL_TIME_FEATURE_IDX = FEATURE_NAMES.index("total_time_s")
+_TRAVEL_TIME_FEATURE_IDX = FEATURE_NAMES.index("travel_time_s")
+_WAIT_TIME_FEATURE_IDX = FEATURE_NAMES.index("wait_time_s")
+_CHARGE_TIME_FEATURE_IDX = FEATURE_NAMES.index("charge_time_s")
+
+# Travel must cost MORE per second than the wait it can displace: while an EV
+# is en route it accrues no waiting_time, so at weight 1.0 the policy trades
+# travel for wait on any positive margin (greedy's exact 1:1 total-time
+# formula), which is what produced the ~9.4km average detours. A detour is
+# only worth taking when it saves at least this multiple of its travel time
+# in realized wait+charge -- a clear margin. Training-only: the evaluation
+# RewardTracker keeps travel_weight=1.0 so the reported reward stays true
+# (unshaped) system time for every policy. Validated on the full grid:
+# 2.0 cut distance further but degraded true system time, utilization,
+# and completions at high/congested; 1.5 dominated it on the overall
+# objective, so 1.5 is the shipped value.
+TRAVEL_TIME_WEIGHT = 1.5
 
 # Realized per-EV cost targets (see `_PendingDecision`) are in seconds and
 # can run into the thousands (charge/wait time) to ~3600 (abandon penalty).
@@ -203,8 +218,9 @@ def _select_round_assignments(evs, stations, q_net, norm_stats, epsilon, rng, to
 def _collect_imitation_dataset(
     world_pool, norm_stats, densities, worlds_per_density=2, steps_per_world=40, seed=0
 ):
-    """Collect (normalized_features, target) pairs that imitate the greedy
-    heuristic's own `total_time_s` estimate, for warm-starting the Q-network.
+    """Collect (normalized_features, target) pairs that imitate a
+    travel-weighted version of the greedy heuristic's time estimate, for
+    warm-starting the Q-network.
 
     Rationale: at episode 0 the network's Q-values are near-random, so
     early epsilon-greedy/argmax exploration wastes rounds on arbitrary
@@ -213,10 +229,11 @@ def _collect_imitation_dataset(
     from-scratch network converged to a *systematic* bias toward far
     stations (avg travel distance ~7-8km vs nearest's ~2-2.5km almost
     independent of density), consistent with extrapolation error on
-    under-sampled far-station states. Regressing onto `-total_time_s`
-    (the same travel+wait+charge heuristic `optimize_charging`/greedy
-    uses) gives the network a sane, distance-aware starting point before
-    Monte-Carlo fine-tuning specializes it beyond the heuristic.
+    under-sampled far-station states. Regressing onto
+    `-(TRAVEL_TIME_WEIGHT*travel + wait + charge)` gives the network a
+    sane, distance-aware starting point that optimizes the *same* weighted
+    objective as the Monte-Carlo fine-tuning phase, so fine-tuning
+    specializes the heuristic instead of pulling toward a different one.
 
     Runs `GreedySequentialPolicy` (not epsilon-random) over a few worlds
     per density so the recorded candidate pairs reflect realistic queue
@@ -241,7 +258,21 @@ def _collect_imitation_dataset(
                             if not ev.can_reach_station(station.location):
                                 continue
                             feats = extract_features(ev, station, {"global_ctx": global_ctx})
-                            target = -float(feats[_TOTAL_TIME_FEATURE_IDX]) / TARGET_SCALE
+                            # Weighted travel + wait + charge, matching the
+                            # Monte-Carlo fine-tuning objective exactly (the
+                            # total_time_s feature's on-route x0.9 / low-SoC
+                            # x5 heuristic adjustments are deliberately NOT
+                            # part of the target -- the MC return contains
+                            # neither, and the realized 3600s abandonment
+                            # penalty already covers the low-SoC safety case).
+                            target = (
+                                -(
+                                    TRAVEL_TIME_WEIGHT * float(feats[_TRAVEL_TIME_FEATURE_IDX])
+                                    + float(feats[_WAIT_TIME_FEATURE_IDX])
+                                    + float(feats[_CHARGE_TIME_FEATURE_IDX])
+                                )
+                                / TARGET_SCALE
+                            )
                             pairs.append((normalize_features(feats, norm_stats), target))
                 sim.step(auto_optimize=True)
                 if sim.is_done():
@@ -271,9 +302,10 @@ def _pretrain_imitation(q_net, optimizer, loss_fn, pairs, rng, torch, batch_size
 class _PendingDecision:
     """Tracks the realized outcome of one (EV, station) assignment.
 
-    Each decision is scored by the *same* EV's own realized wait + charge
-    (+ abandonment penalty) time from the moment it's assigned until its
-    trip actually ends (completes or is abandoned), discounted step-by-step
+    Each decision is scored by the *same* EV's own realized weighted-travel
+    + wait + charge (+ abandonment penalty) time from the moment it's
+    assigned until its trip actually ends (completes or is abandoned),
+    discounted step-by-step
     by `gamma` -- i.e. a proper n-step/Monte-Carlo return, but attributed to
     the single EV the decision was actually made for. Crucially, if the
     same EV needs to charge again later in the episode (e.g. because a
@@ -306,7 +338,10 @@ class _PendingDecision:
     def __init__(self, ev, feats):
         self.ev = ev
         self.feats = feats
-        self.tracker = RewardTracker()
+        # Weighted tracker: en-route travel costs TRAVEL_TIME_WEIGHT x its
+        # duration in the training target (see constant's comment), while
+        # the fleet-wide evaluation tracker stays at weight 1.0.
+        self.tracker = RewardTracker(travel_weight=TRAVEL_TIME_WEIGHT)
         self.prev_total = 0.0
         self.discount = 1.0
         self.target = 0.0
