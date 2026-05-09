@@ -93,6 +93,36 @@ class TestRewardTracker:
         assert summary["total_wait"] == 120
         assert summary["reward"] == -summary["total_system"]
 
+    def test_travel_time_accrues_at_default_weight(self):
+        tracker = RewardTracker()
+        ev = _make_ev()
+        ev.waiting_time = 0
+        ev.en_route_to_charger = True
+        stations = [_make_station()]
+
+        tracker.observe([ev], stations, 60)
+        tracker.observe([ev], stations, 60)
+
+        summary = tracker.summary()
+        assert summary["total_travel"] == 120
+        assert summary["total_system"] == 120
+        assert summary["reward"] == -120
+
+    def test_travel_weight_scales_system_time_not_total_travel(self):
+        tracker = RewardTracker(travel_weight=1.5)
+        ev = _make_ev()
+        ev.waiting_time = 0
+        ev.en_route_to_charger = True
+        stations = [_make_station()]
+
+        tracker.observe([ev], stations, 60)
+        tracker.observe([ev], stations, 60)
+
+        summary = tracker.summary()
+        assert summary["total_travel"] == 120
+        assert summary["total_system"] == 180
+        assert summary["reward"] == -180
+
 
 class TestEnvDeterminism:
     def test_same_seed_same_reward(self):
@@ -137,9 +167,17 @@ def _make_congested_fixture():
     (travel + wait + charge) heuristics disagree.
 
     Station A is very close to the EV but has a full charger plus a long
-    queue (large wait estimate); Station B is much farther away but has no
+    queue (large wait estimate); Station B is a few km away but has no
     queue and free chargers. A pure-distance policy (nearest) should pick A;
     a total-time-aware policy (greedy/RL) should pick B instead.
+
+    B sits at a realistic detour distance (~3.4km, well within the range of
+    assignments seen in training) rather than tens of km out: since travel
+    time was priced into the reward, the RL policy deliberately no longer
+    detours to far-off stations, and Q-value extrapolation on
+    far-off-distribution (distance, wait) pairs is unreliable -- the old
+    19km placement only "worked" because the pre-fix model treated travel
+    as free.
     """
     ev = _make_ev("target", soc=0.3)
 
@@ -152,7 +190,7 @@ def _make_congested_fixture():
         station_a.queue.append(_make_ev(f"queued-{i}", soc=0.1))
 
     station_b = _make_station("B", chargers=2)
-    station_b.location = (13.05, 77.75)  # far away, but empty and free
+    station_b.location = (12.99, 77.62)  # ~3.4km away, but empty and free
 
     assert station_a.get_current_wait_time_estimate() > station_b.get_current_wait_time_estimate()
     return ev, station_a, station_b

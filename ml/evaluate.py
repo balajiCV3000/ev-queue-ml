@@ -94,6 +94,7 @@ def run_single(policy_name, seed, num_evs=50, num_stations=20, max_steps=500, sc
         "total_reward": reward,
         "reward": reward,
         "total_system_time": reward_summary.get("total_system", 0),
+        "total_travel_time": reward_summary.get("total_travel", 0),
         "total_wait": reward_summary.get("total_wait", 0),
         "total_charge": reward_summary.get("total_charge", 0),
         "completed": reward_summary.get("completed", 0),
