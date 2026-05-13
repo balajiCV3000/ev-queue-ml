@@ -23,8 +23,9 @@ serving time (`ml/policies/rl_policy.py::_rl_assign`).
 - Network: MLP 23 → 64 → 64 → 1 (ReLU activations)
 - Loss: Huber (Smooth L1)
 - Warm start: ~800 supervised gradient steps regressing `Q(s,a)` onto
-  `-total_time_s` (the same travel+wait+charge heuristic `greedy` uses,
-  already present as one of the 23 input features) before Monte-Carlo
+  `-(TRAVEL_TIME_WEIGHT*travel + wait + charge)` (a travel-weighted version
+  of the total-time heuristic `greedy` uses, matching the Monte-Carlo
+  fine-tuning objective) before Monte-Carlo
   fine-tuning, using (feature, target) pairs collected by running
   `greedy_sequential` across pre-generated worlds (`_collect_imitation_dataset`
   in `ml/train.py`). This gives the network a sane, distance/queue-aware
@@ -54,12 +55,14 @@ different, deliberately simpler target than Double DQN:
   (dozens to 200+ EVs assigned simultaneously per round under congestion),
   so there's no single clean "next state" for one EV's decision to
   bootstrap a one-step DQN target from. Instead, each (EV, station)
-  decision is regressed onto *that EV's own* realized wait + charge (+
-  abandonment penalty) time from assignment until its trip actually ends,
-  discounted step-by-step by `gamma` (see `_PendingDecision` in
-  `ml/train.py`). This is exactly the per-EV decomposition of the
-  `-total_system` reward (`RewardTracker`) used to score policies in
-  `ml.evaluate`, so training pressure matches the evaluation metric, and
+  decision is regressed onto *that EV's own* realized weighted-travel +
+  wait + charge (+ abandonment penalty) time from assignment until its
+  trip actually ends, discounted step-by-step by `gamma` (see
+  `_PendingDecision` in `ml/train.py`). This is the per-EV decomposition
+  of the `-total_system` reward (`RewardTracker`) used to score policies
+  in `ml.evaluate` -- with travel weighted 1.5x during training (see the
+  reward section below) -- so training pressure matches the evaluation
+  metric while pricing detours at a premium, and
   it is directly attributable to the specific station choice (an
   intermediate attempt at sharing one whole-episode, whole-fleet return
   across every simultaneous decision in a round produced a Q-ranking that
@@ -90,16 +93,13 @@ different, deliberately simpler target than Double DQN:
   moving average since a `congested` episode's reward is intrinsically
   ~10-100x larger in magnitude than a `medium` one.
 
-  In the current 350-episode run: `medium` moving average goes from -34.5M
-  (episode 0) to ~-29.7M (final, ~14% improvement); `high` from -143.2M to
-  ~-124.0M (~13% improvement); `congested` from -607.1M to ~-564.5M (~7%
-  improvement). All three curves show real, held-out improvement (not flat
-  noise as in the original broken trainer), and -- unlike an earlier
-  iteration that improved a single held-out `congested` world without that
-  improvement transferring to the independently-seeded grid -- this version
-  was confirmed to generalize: the full 20-seed grid re-run (below) shows
-  RL now statistically beating `greedy` at `high` and `congested`, not just
-  improving against its own training-time eval worlds.
+  In the current 400-episode run (travel-priced reward, w=1.5): `medium`
+  moving average improves from -31.5M (first 5 episodes) to ~-19.3M
+  (final); `high` from -160.6M to ~-148.2M; `congested` from -635.6M to
+  ~-631.8M. All three curves show real, held-out improvement (not flat
+  noise as in the original broken trainer), and the full 20-seed grid
+  re-run (below) confirms the behavior generalizes to
+  independently-seeded worlds, not just the training-time eval worlds.
 
 ## Artifacts
 
@@ -140,10 +140,32 @@ density).
 
 ## Evaluation Metrics
 
-- Total system time (wait + charge + abandonment penalty)
+- Total system time (travel + wait + charge + abandonment penalty)
 - Average wait time
 - Completion / abandonment rates
 - Station utilization (herding detection)
+- Total / per-assignment travel distance
+
+## Reward: travel time is priced (2026-07 change)
+
+The reward previously omitted en-route travel entirely; because
+`waiting_time` does not accrue while an EV is `en_route_to_charger`,
+detouring to a far empty station *displaced* penalized queue time with
+unpriced travel time, which is why earlier models averaged ~9.4km per
+assignment vs `greedy`'s ~3.7km. `RewardTracker` now accrues travel time:
+at weight 1.0 in evaluation (so `total_reward` is true system time for
+every policy) and at `TRAVEL_TIME_WEIGHT = 1.5` in the training target
+(`ml/train.py`), so a detour must save clearly more wait than the travel
+it adds. Because evaluation now counts travel, `total_reward` values in
+this section are NOT comparable to grids run before this change
+(`results_pre_travel_fix/` preserves the last pre-change grid).
+
+Weight ablations (full 20-seed grids each): `TRAVEL_TIME_WEIGHT=2.0` cut
+distance further (e.g. 5.8km vs 7.7km at `high`) but degraded true system
+time, utilization, and completions at `high`/`congested`; an undiscounted
+(`--gamma 1.0`) variant at w=1.5 behaved similarly. w=1.5 with the default
+gamma=0.99 dominated both on the overall objective and is the shipped
+model.
 
 ## Known Trade-offs
 
@@ -169,27 +191,33 @@ forced for the whole grid, identical per-seed worlds across all policies.
 (confirms the trained `.npz` weights are actually used, never a greedy
 fallback).
 
-| Scenario  | greedy      | greedy_sequential | nearest     | random      | **rl**          | rl vs greedy (paired) |
-|-----------|------------:|-------------------:|------------:|------------:|----------------:|:-----------------------|
-| low       | -174        | -174               | -543        | -567        | **-174**        | tied (d=0.000) |
-| medium    | -68,202     | -73,257            | -118,185    | -121,449    | -73,554         | tied, p=0.16 (d=-0.34) |
-| high      | -868,671    | -842,037           | -1,014,177  | -936,033    | **-833,388**    | **RL wins, p=0.0025 (d=0.80)** |
-| congested | -3,507,267  | -3,478,248         | -3,640,305  | -3,440,574  | **-3,387,717**  | **RL wins, p<0.0001 (d=2.67)** |
+Total reward = negative true system time (travel now included, see the
+reward section above; numbers below are NOT comparable to the table this
+replaces, which was measured on the old travel-free metric):
 
-RL now statistically significantly beats `greedy` (and `greedy_sequential`)
-at both `high` and `congested` density -- the two regimes an earlier
-iteration identified as RL's weakest -- while remaining statistically tied
-with `greedy` at `low`/`medium` (never worse). At `congested`, RL also has
-the highest station utilization of any policy (0.97 vs. `greedy`'s 0.82),
-confirming it is genuinely spreading load across stations rather than
-herding onto a few "fast charger" stations as an earlier iteration's model
-did. This is the best-performing policy overall at the highest-contention
-density tested.
+| Scenario  | greedy      | greedy_sequential | nearest     | random      | **rl**          | rl vs greedy (paired) | rl vs nearest (paired) |
+|-----------|------------:|-------------------:|------------:|------------:|----------------:|:----------------------|:-----------------------|
+| low       | -192        | -192               | -561        | -612        | **-192**        | tied (d=0.000)        | tied, p=0.33 |
+| medium    | -72,051     | -77,997            | -120,486    | -132,360    | -76,704         | tied, p=0.17 (d=-0.33)| **RL wins, p<0.0001** |
+| high      | -897,834    | -880,164           | -1,029,720  | -998,580    | -965,673        | greedy wins, p<0.0001 (d=-1.52) | **RL wins, p=0.0015** |
+| congested | -3,600,270  | -3,604,656         | -3,695,412  | -3,611,007  | -3,617,085      | tied, p=0.12 (d=-0.37)| **RL wins, p=0.0007** |
 
-Reproduce with `python -m ml.train --episodes 350 --world-pool-size 9`
-(must match `density_weights = {"medium": 1, "high": 3, "congested": 2}`
-currently in `train_dqn`) followed by `python -m experiments.run_grid
---seeds 20`.
+Per-metric picture (20-seed means): RL has the lowest average wait time of
+all five policies at every contended density (medium 118s vs greedy 527s /
+nearest 832s; high 3,766s vs 5,084s / 4,871s; congested 6,907s vs 7,610s /
+7,740s; all paired p<=0.03), the lowest avg/max queue lengths of
+greedy/nearest/rl at every density, and higher utilization than greedy at
+high (0.74 vs 0.52) and congested (0.94 vs 0.82) while serving more
+vehicles (high 64.5 vs 61.4; congested 75.2 vs 73.4). Completion rate is
+equal at medium (1.00), slightly below greedy at high (0.868 vs 0.899) and
+congested (0.342 vs 0.347), and above nearest everywhere. On true system
+time RL beats `nearest` at every contended density and is statistically
+tied with `greedy` at medium/congested but loses at high (-7.6%): greedy's
+per-EV total-time heuristic is genuinely strong once travel is priced.
+
+Reproduce with `python -m ml.train` (400 episodes, defaults; must match
+`density_weights = {"medium": 1, "high": 3, "congested": 2}` in
+`train_dqn`) followed by `python -m experiments.run_grid --seeds 20`.
 
 ## Limitations
 
@@ -198,11 +226,15 @@ currently in `train_dqn`) followed by `python -m experiments.run_grid
   within-round shadow-pending counter and the new global-contention
   features; those features are a summary statistic, not a learned model of
   how other simultaneous decisions will play out
-- Average travel distance under RL is still notably higher than `greedy`'s
-  at every density (e.g. ~9.4km vs. `greedy`'s ~3.7km at `high`) -- RL wins
-  on total system time/reward by trading more travel for less queueing, a
-  real trade-off worth being explicit about rather than treating "RL wins"
-  as a strictly dominant result
+- Average travel distance under RL improved substantially once travel was
+  priced into the reward (medium 9.0 -> 4.4km, high 9.4 -> 7.7km, congested
+  9.7 -> 8.5km per assignment) but remains above `greedy` (3.0/3.7/4.2km)
+  and `nearest` (1.9/2.0/2.5km) at every contended density: the policy
+  still buys its wait-time/queue-balance wins with extra travel, now at a
+  bounded exchange rate rather than for free. Raising the travel weight
+  further (2.0) reduced distance more but made overall system time worse
+  (see reward section) -- the residual gap is a real trade-off, not a
+  tuning artifact left unexamined
 - Bandit ablation (γ=0) tests whether one-step credit assignment suffices;
   the default (γ=0.99) return spans each EV's full trip-to-completion, not
   just the first charging stop
