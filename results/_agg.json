@@ -12,9 +12,9 @@
     "vehicles_served": 0.05,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -174.0,
+    "total_reward": -192.0,
     "average_charging_completion_time": 174.0,
-    "total_reward_std": 778.2
+    "total_reward_std": 858.7
   },
   {
     "scenario": "low",
@@ -29,9 +29,9 @@
     "vehicles_served": 0.05,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -174.0,
+    "total_reward": -192.0,
     "average_charging_completion_time": 174.0,
-    "total_reward_std": 778.2
+    "total_reward_std": 858.7
   },
   {
     "scenario": "low",
@@ -46,9 +46,9 @@
     "vehicles_served": 0.05,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -543.0,
+    "total_reward": -561.0,
     "average_charging_completion_time": 543.0,
-    "total_reward_std": 2428.4
+    "total_reward_std": 2508.9
   },
   {
     "scenario": "low",
@@ -63,9 +63,9 @@
     "vehicles_served": 0.05,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -567.0,
+    "total_reward": -612.0,
     "average_charging_completion_time": 567.0,
-    "total_reward_std": 2535.7
+    "total_reward_std": 2736.9
   },
   {
     "scenario": "low",
@@ -80,9 +80,9 @@
     "vehicles_served": 0.05,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -174.0,
+    "total_reward": -192.0,
     "average_charging_completion_time": 174.0,
-    "total_reward_std": 778.2
+    "total_reward_std": 858.7
   },
   {
     "scenario": "medium",
@@ -97,9 +97,9 @@
     "vehicles_served": 11.45,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -68202.0,
+    "total_reward": -72051.0,
     "average_charging_completion_time": 5402.084,
-    "total_reward_std": 22700.1
+    "total_reward_std": 23592.8
   },
   {
     "scenario": "medium",
@@ -114,9 +114,9 @@
     "vehicles_served": 11.45,
     "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -73257.0,
+    "total_reward": -77997.0,
     "average_charging_completion_time": 6216.548,
-    "total_reward_std": 25393.9
+    "total_reward_std": 26940.5
   },
   {
     "scenario": "medium",
@@ -131,9 +131,9 @@
     "vehicles_served": 11.3,
     "completion_rate": 0.989,
     "abandoned_rate": 0.0,
-    "total_reward": -118185.0,
+    "total_reward": -120486.0,
     "average_charging_completion_time": 9067.859,
-    "total_reward_std": 44181.7
+    "total_reward_std": 44836.1
   },
   {
     "scenario": "medium",
@@ -148,26 +148,26 @@
     "vehicles_served": 11.4,
     "completion_rate": 0.984,
     "abandoned_rate": 0.0,
-    "total_reward": -121449.0,
+    "total_reward": -132360.0,
     "average_charging_completion_time": 9126.028,
-    "total_reward_std": 41382.2
+    "total_reward_std": 44497.9
   },
   {
     "scenario": "medium",
     "policy": "rl",
-    "average_wait_time": 33.2,
-    "average_travel_distance_km": 9.004,
-    "total_travel_distance_km": 100.682,
-    "avg_queue_length": 0.026,
-    "max_queue_length": 0.1,
-    "avg_station_utilization": 0.096,
-    "throughput_per_hour": 2.736,
+    "average_wait_time": 118.23,
+    "average_travel_distance_km": 4.391,
+    "total_travel_distance_km": 50.052,
+    "avg_queue_length": 0.084,
+    "max_queue_length": 0.3,
+    "avg_station_utilization": 0.127,
+    "throughput_per_hour": 3.221,
     "vehicles_served": 11.45,
-    "completion_rate": 0.997,
+    "completion_rate": 1.0,
     "abandoned_rate": 0.0,
-    "total_reward": -73554.0,
-    "average_charging_completion_time": 6011.55,
-    "total_reward_std": 29049.6
+    "total_reward": -76704.0,
+    "average_charging_completion_time": 5904.859,
+    "total_reward_std": 28996.7
   },
   {
     "scenario": "high",
@@ -182,9 +182,9 @@
     "vehicles_served": 61.35,
     "completion_rate": 0.899,
     "abandoned_rate": 0.0,
-    "total_reward": -868671.0,
+    "total_reward": -897834.0,
     "average_charging_completion_time": 6190.13,
-    "total_reward_std": 122949.0
+    "total_reward_std": 124117.1
   },
   {
     "scenario": "high",
@@ -199,9 +199,9 @@
     "vehicles_served": 68.75,
     "completion_rate": 0.917,
     "abandoned_rate": 0.0,
-    "total_reward": -842037.0,
+    "total_reward": -880164.0,
     "average_charging_completion_time": 8071.706,
-    "total_reward_std": 128538.2
+    "total_reward_std": 131265.1
   },
   {
     "scenario": "high",
@@ -216,9 +216,9 @@
     "vehicles_served": 53.55,
     "completion_rate": 0.843,
     "abandoned_rate": 0.0,
-    "total_reward": -1014177.0,
+    "total_reward": -1029720.0,
     "average_charging_completion_time": 7866.77,
-    "total_reward_std": 130769.7
+    "total_reward_std": 131622.8
   },
   {
     "scenario": "high",
@@ -233,26 +233,26 @@
     "vehicles_served": 59.5,
     "completion_rate": 0.864,
     "abandoned_rate": 0.0,
-    "total_reward": -936033.0,
+    "total_reward": -998580.0,
     "average_charging_completion_time": 8284.284,
-    "total_reward_std": 121250.7
+    "total_reward_std": 127895.4
   },
   {
     "scenario": "high",
     "policy": "rl",
-    "average_wait_time": 3896.871,
-    "average_travel_distance_km": 9.427,
-    "total_travel_distance_km": 665.193,
-    "avg_queue_length": 16.443,
-    "max_queue_length": 35.3,
-    "avg_station_utilization": 0.675,
-    "throughput_per_hour": 11.263,
-    "vehicles_served": 65.7,
-    "completion_rate": 0.909,
+    "average_wait_time": 3765.575,
+    "average_travel_distance_km": 7.671,
+    "total_travel_distance_km": 540.945,
+    "avg_queue_length": 16.985,
+    "max_queue_length": 33.0,
+    "avg_station_utilization": 0.74,
+    "throughput_per_hour": 11.049,
+    "vehicles_served": 64.45,
+    "completion_rate": 0.868,
     "abandoned_rate": 0.0,
-    "total_reward": -833388.0,
-    "average_charging_completion_time": 7136.806,
-    "total_reward_std": 129482.4
+    "total_reward": -965673.0,
+    "average_charging_completion_time": 8421.286,
+    "total_reward_std": 116699.8
   },
   {
     "scenario": "congested",
@@ -267,9 +267,9 @@
     "vehicles_served": 73.4,
     "completion_rate": 0.347,
     "abandoned_rate": 0.0,
-    "total_reward": -3507267.0,
+    "total_reward": -3600270.0,
     "average_charging_completion_time": 6327.484,
-    "total_reward_std": 121408.8
+    "total_reward_std": 118692.2
   },
   {
     "scenario": "congested",
@@ -284,9 +284,9 @@
     "vehicles_served": 83.25,
     "completion_rate": 0.349,
     "abandoned_rate": 0.0,
-    "total_reward": -3478248.0,
+    "total_reward": -3604656.0,
     "average_charging_completion_time": 7287.092,
-    "total_reward_std": 113409.3
+    "total_reward_std": 111635.9
   },
   {
     "scenario": "congested",
@@ -301,9 +301,9 @@
     "vehicles_served": 63.9,
     "completion_rate": 0.3,
     "abandoned_rate": 0.0,
-    "total_reward": -3640305.0,
+    "total_reward": -3695412.0,
     "average_charging_completion_time": 7399.568,
-    "total_reward_std": 129811.3
+    "total_reward_std": 127844.3
   },
   {
     "scenario": "congested",
@@ -318,25 +318,25 @@
     "vehicles_served": 80.95,
     "completion_rate": 0.347,
     "abandoned_rate": 0.0,
-    "total_reward": -3440574.0,
+    "total_reward": -3611007.0,
     "average_charging_completion_time": 7200.453,
-    "total_reward_std": 107638.0
+    "total_reward_std": 107527.3
   },
   {
     "scenario": "congested",
     "policy": "rl",
-    "average_wait_time": 7851.4,
-    "average_travel_distance_km": 9.701,
-    "total_travel_distance_km": 1914.643,
-    "avg_queue_length": 136.745,
-    "max_queue_length": 171.4,
-    "avg_station_utilization": 0.967,
-    "throughput_per_hour": 14.134,
-    "vehicles_served": 82.45,
-    "completion_rate": 0.344,
+    "average_wait_time": 6906.719,
+    "average_travel_distance_km": 8.466,
+    "total_travel_distance_km": 1670.755,
+    "avg_queue_length": 139.401,
+    "max_queue_length": 171.0,
+    "avg_station_utilization": 0.943,
+    "throughput_per_hour": 12.883,
+    "vehicles_served": 75.15,
+    "completion_rate": 0.342,
     "abandoned_rate": 0.0,
-    "total_reward": -3387717.0,
-    "average_charging_completion_time": 7064.264,
-    "total_reward_std": 108498.2
+    "total_reward": -3617085.0,
+    "average_charging_completion_time": 7175.857,
+    "total_reward_std": 111938.2
   }
 ]
