@@ -1,0 +1,5 @@
+<nav class="top-nav">
+    <a href="{{ url_for('index') }}" class="nav-link{% if request.path == '/' %} active{% endif %}">Home</a>
+    <a href="{{ url_for('results_page') }}" class="nav-link{% if request.path == '/results' %} active{% endif %}">Results</a>
+    <a href="{{ url_for('how_it_works') }}" class="nav-link{% if request.path == '/how-it-works' %} active{% endif %}">How It Works</a>
+</nav>

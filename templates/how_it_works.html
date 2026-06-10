@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>How It Works</h1>
+        </header>
+
+        {% include 'nav.html' %}
+
+        <div class="how-it-works-page">
+            <div class="diagram-toggle">
+                <button id="showPipelineBtn" class="btn btn-primary diagram-toggle-btn active">Full Pipeline</button>
+                <button id="showRlBtn" class="btn btn-secondary diagram-toggle-btn">RL Decision</button>
+            </div>
+
+            <div id="pipelineDiagram" class="diagram">
+                <h2>Full Assignment Pipeline</h2>
+                <div class="flow">
+                    <div class="flow-step">EV needs charge?</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">Find reachable stations (accessibility)</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">Score: route proximity + queue length + charge time</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">Assign to lowest total-time station</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">Travel &rarr; Queue &rarr; Charge</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-branch">
+                        <div class="flow-step flow-outcome">Trip complete</div>
+                        <div class="flow-step flow-outcome flow-outcome-bad">Abandoned (no reachable station)</div>
+                    </div>
+                </div>
+                <p class="diagram-note">
+                    Same core algorithm described in <code>README.md</code> under
+                    "Core Optimization Algorithm" — implemented in
+                    <code>models/optimization.py</code>.
+                </p>
+            </div>
+
+            <div id="rlDiagram" class="diagram" style="display: none;">
+                <h2>RL Decision (per EV-station candidate)</h2>
+                <div class="flow">
+                    <div class="flow-step">EV + each reachable station</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">23-dim feature vector (<code>ml/features.py</code>)</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">MLP 23&rarr;64&rarr;64&rarr;1 (NumPy forward pass)</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">Pick highest-Q reachable station</div>
+                </div>
+                <div class="flow-side-branches">
+                    <div class="flow-branch-box">
+                        <div class="flow-branch-label">Training</div>
+                        <div class="flow-step">Monte-Carlo return regression on a greedy-imitation warm start</div>
+                    </div>
+                    <div class="flow-branch-box">
+                        <div class="flow-branch-label">Fallback</div>
+                        <div class="flow-step flow-outcome-bad">Falls back to greedy on model-load or inference failure</div>
+                    </div>
+                </div>
+                <p class="diagram-note">
+                    Details in <code>artifacts/model_card.md</code> — served from
+                    <code>.npz</code> weights via a NumPy-only forward pass, no
+                    PyTorch at runtime.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/how_it_works.js') }}"></script>
+</body>
+</html>

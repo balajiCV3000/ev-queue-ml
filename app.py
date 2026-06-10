@@ -1,9 +1,14 @@
-from flask import Flask, render_template, jsonify, request
+import os
+
+from flask import Flask, render_template, jsonify, request, send_from_directory
 import config
 import argparse
 from utils.data_generator import generate_synthetic_data
 from models.simulation import Simulation
 from ml.policies.registry import get_policy, list_policies
+from scripts.render_markdown import render_markdown
+
+RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results')
 
 
 class _TrustedHostsMiddleware:
@@ -73,6 +78,31 @@ def index():
 def health():
     """Health check endpoint for load balancers"""
     return {"status": "healthy"}, 200
+
+@app.route('/results')
+def results_page():
+    def read_and_render(filename):
+        path = os.path.join(RESULTS_DIR, filename)
+        if not os.path.isfile(path):
+            return None
+        with open(path, 'r', encoding='utf-8') as f:
+            return render_markdown(f.read())
+
+    comparison_html = read_and_render('comparison_summary.md')
+    stats_html = read_and_render('stats_summary.md')
+    return render_template(
+        'results.html',
+        comparison_html=comparison_html,
+        stats_html=stats_html,
+    )
+
+@app.route('/results/assets/<path:filename>')
+def results_assets(filename):
+    return send_from_directory(RESULTS_DIR, filename)
+
+@app.route('/how-it-works')
+def how_it_works():
+    return render_template('how_it_works.html')
 
 @app.route('/api/simulation/start', methods=['POST'])
 def start_simulation():
