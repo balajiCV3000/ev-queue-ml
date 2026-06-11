@@ -84,3 +84,24 @@ def test_reset_restores_ev_and_station_runtime_state():
     assert station.total_served == 0
     assert station.total_wait_time == 0
     assert station.max_queue_length == 0
+
+
+def test_status_field_reflects_running_and_completed_flags():
+    simulation = Simulation([], [], [])
+
+    assert simulation.get_current_state()["status"] == "stopped"
+
+    simulation.running = True
+    assert simulation._build_state()["status"] == "running"
+
+    simulation.completed = True
+    assert simulation._build_state()["status"] == "completed"
+
+
+def test_reset_clears_completed_flag():
+    simulation = Simulation([], [], [])
+    simulation.completed = True
+
+    assert simulation.reset() is True
+
+    assert simulation.completed is False

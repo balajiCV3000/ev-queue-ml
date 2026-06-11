@@ -17,6 +17,7 @@ class Simulation:
         self.time_step = config.TIME_STEP_SECONDS
         self.current_step = 0
         self.running = False
+        self.completed = False
         self.thread = None
         self.metrics = {
             'average_wait_time': 0,
@@ -61,6 +62,8 @@ class Simulation:
         """Start the simulation in a separate thread"""
         if self.running:
             return False
+        if self.completed:
+            return False
 
         self.running = True
         self.thread = threading.Thread(target=self._run_simulation)
@@ -79,10 +82,17 @@ class Simulation:
     def _run_simulation(self):
         """Main simulation loop"""
         import time as _time
-        while self.running:
+        while self.running and not self.is_done():
             self.step()
             self._record_state()
             _time.sleep(0.1)
+
+        if self.running:
+            # Loop exited because is_done() became true, not because stop()
+            # was called — surface completion and capture the final snapshot.
+            self.completed = True
+            self.running = False
+            self._record_state()
 
     def get_evs_needing_charge(self):
         """Return EVs that need charging and are not abandoned."""
@@ -361,10 +371,17 @@ class Simulation:
 
     def _build_state(self):
         """Build a serializable snapshot of the current simulation state."""
+        if self.completed:
+            status = 'completed'
+        elif self.running:
+            status = 'running'
+        else:
+            status = 'stopped'
         return {
             'step': self.current_step,
             'timestamp': datetime.now().isoformat(),
             'running': self.running,
+            'status': status,
             'evs': [ev.to_dict() for ev in self.evs],
             'stations': [station.to_dict() for station in self.stations],
             'metrics': self.metrics.copy(),
@@ -409,6 +426,7 @@ class Simulation:
     def reset(self):
         """Reset simulation to initial state"""
         self.stop()
+        self.completed = False
 
         for ev in self.evs:
             ev.current_position = ev.origin

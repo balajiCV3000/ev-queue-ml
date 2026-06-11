@@ -47,6 +47,43 @@ header h1 {
     gap: 5px;
 }
 
+/* Top navigation */
+.top-nav {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.top-nav .nav-link {
+    padding: 6px 12px;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.top-nav .nav-link:hover {
+    background-color: #eee;
+}
+
+.top-nav .nav-link.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* Completion banner */
+.completion-banner {
+    background-color: #E8F5E9;
+    border: 1px solid #4CAF50;
+    color: #2E7D32;
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
 /* Main content */
 .main-content {
     display: flex;
@@ -317,4 +354,183 @@ button:disabled {
     color: #777;
     text-align: center;
     margin-top: 20px;
+}
+
+/* Results page */
+.results-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.results-section {
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.results-section h2 {
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.results-charts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.results-charts figure {
+    flex: 1 1 300px;
+    text-align: center;
+}
+
+.results-charts img {
+    max-width: 100%;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.results-charts figcaption {
+    font-size: 13px;
+    color: #777;
+    margin-top: 5px;
+}
+
+.results-placeholder {
+    font-style: italic;
+    color: #777;
+}
+
+.results-section h1,
+.results-section h2,
+.results-section h3 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+.results-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.results-section th,
+.results-section td {
+    border: 1px solid #eee;
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.results-section th {
+    background-color: #f9f9f9;
+}
+
+.results-section p {
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.results-section ul.md-list {
+    margin: 0 0 15px 20px;
+    font-size: 14px;
+}
+
+.results-section ul.md-list li.nested {
+    margin-left: 20px;
+    list-style-type: circle;
+}
+
+.results-detail summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* How It Works page */
+.how-it-works-page {
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.diagram-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.diagram-toggle-btn.active {
+    outline: 2px solid #333;
+}
+
+.diagram h2 {
+    margin-bottom: 15px;
+}
+
+.flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.flow-step {
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+.flow-arrow {
+    font-size: 20px;
+    color: #777;
+}
+
+.flow-branch {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.flow-outcome {
+    border-color: #4CAF50;
+    background-color: #E8F5E9;
+}
+
+.flow-outcome-bad {
+    border-color: #FF9800;
+    background-color: #FFF3E0;
+}
+
+.flow-side-branches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.flow-branch-box {
+    flex: 1 1 250px;
+    border: 1px dashed #aaa;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.flow-branch-label {
+    font-weight: bold;
+    font-size: 13px;
+    color: #607D8B;
+    margin-bottom: 8px;
+}
+
+.diagram-note {
+    font-size: 13px;
+    color: #777;
 }

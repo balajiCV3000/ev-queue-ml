@@ -2,6 +2,7 @@ let simulationRunning = false;
 let simulationSpeed = 5;
 let updateInterval;
 let stateUpdateCounter = 0;
+let simulationCompleted = false;
 
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -88,26 +89,29 @@ function resetSimulation() {
     }))
     .then(data => {
         if (data.success) {
+            simulationCompleted = false;
+            hideCompletionBanner();
+
             // Update state immediately
             updateSimulationState();
-            
+
             // Reset charts
             if (typeof initCharts === 'function') {
                 initCharts();
             }
-            
+
             // Clear logs
             const optimizationLogsEl = document.getElementById('optimizationLogs');
             if (optimizationLogsEl) {
                 optimizationLogsEl.textContent = "No optimization logs yet.";
             }
-            
+
             // Clear journey timeline
             const journeyTimeline = document.getElementById('journeyTimeline');
             if (journeyTimeline) {
                 journeyTimeline.innerHTML = '<p class="no-ev-selected">Select an EV to view its journey timeline.</p>';
             }
-            
+
             // Reset EV selector and update with new data
             if (typeof updateEVSelector === 'function') {
                 updateEVSelector();
@@ -149,25 +153,28 @@ function generateNewData() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            simulationCompleted = false;
+            hideCompletionBanner();
+
             // Update map with new data
             if (typeof updateMap === 'function') {
                 updateMap();
             }
-            
+
             // Reset charts
             if (typeof initCharts === 'function') {
                 initCharts();
             }
-            
+
             // Update state immediately
             updateSimulationState();
-            
+
             // Clear logs
             const optimizationLogsEl = document.getElementById('optimizationLogs');
             if (optimizationLogsEl) {
                 optimizationLogsEl.textContent = "No optimization logs yet.";
             }
-            
+
             // Reset journey view
             if (typeof updateEVSelector === 'function') {
                 updateEVSelector();
@@ -214,8 +221,47 @@ function updateSimulationState() {
         if (stateUpdateCounter % 20 === 0 && typeof updateEVSelector === 'function') {
             updateEVSelector();
         }
+
+        if (data.status === 'completed' && !simulationCompleted) {
+            simulationCompleted = true;
+            simulationRunning = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            resetBtn.disabled = false;
+            generateBtn.disabled = false;
+            clearInterval(updateInterval);
+            showCompletionBanner(data.metrics);
+        }
     })
     .catch(error => console.error('Error updating simulation state:', error));
+}
+
+function showCompletionBanner(metrics) {
+    const banner = document.getElementById('completionBanner');
+    if (!banner) {
+        return;
+    }
+
+    const completionPercent = (metrics.completion_rate * 100).toFixed(1);
+    const abandonedPercent = (metrics.abandoned_rate * 100).toFixed(1);
+    const waitMinutes = Math.floor(metrics.average_wait_time / 60);
+    const waitSeconds = Math.floor(metrics.average_wait_time % 60);
+
+    banner.innerHTML =
+        '<strong>Simulation complete.</strong> ' +
+        `Completion rate: ${completionPercent}% &middot; ` +
+        `Abandoned: ${abandonedPercent}% &middot; ` +
+        `Vehicles served: ${metrics.vehicles_served} &middot; ` +
+        `Avg wait time: ${waitMinutes}:${waitSeconds.toString().padStart(2, '0')} &middot; ` +
+        `Total travel distance: ${metrics.total_travel_distance_km.toFixed(1)} km`;
+    banner.style.display = 'block';
+}
+
+function hideCompletionBanner() {
+    const banner = document.getElementById('completionBanner');
+    if (banner) {
+        banner.style.display = 'none';
+    }
 }
 
 function updateMetrics(metrics) {

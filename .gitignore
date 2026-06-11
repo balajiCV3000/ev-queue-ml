@@ -110,3 +110,5 @@ routes_cache.pkl
 .DS_Store 
 
 *.cursor
+# Docs (not tracked)
+docs/

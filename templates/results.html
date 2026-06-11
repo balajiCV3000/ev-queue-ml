@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL vs. Baseline Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RL vs. Baseline Results</h1>
+        </header>
+
+        {% include 'nav.html' %}
+
+        <div class="results-page">
+            <section class="results-section">
+                <h2>Evaluation Charts</h2>
+                <div class="results-charts">
+                    <figure>
+                        <img src="{{ url_for('results_assets', filename='policy_comparison.png') }}" alt="Policy comparison across metrics">
+                        <figcaption>Policy comparison across metrics</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="{{ url_for('results_assets', filename='reward_by_scenario.png') }}" alt="Reward distribution by scenario">
+                        <figcaption>Reward distribution by scenario</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="{{ url_for('results_assets', filename='service_outcomes.png') }}" alt="Service outcomes by policy">
+                        <figcaption>Service outcomes by policy</figcaption>
+                    </figure>
+                </div>
+            </section>
+
+            <section class="results-section">
+                <h2>RL vs. Baseline Comparison</h2>
+                {% if comparison_html %}
+                    {{ comparison_html | safe }}
+                {% else %}
+                    <p class="results-placeholder">No evaluation results yet — run <code>python -m ml.evaluate</code>.</p>
+                {% endif %}
+            </section>
+
+            <section class="results-section">
+                <details class="results-detail">
+                    <summary>Full statistical detail</summary>
+                    {% if stats_html %}
+                        {{ stats_html | safe }}
+                    {% else %}
+                        <p class="results-placeholder">No evaluation results yet — run <code>python -m ml.evaluate</code>.</p>
+                    {% endif %}
+                </details>
+            </section>
+        </div>
+    </div>
+</body>
+</html>
