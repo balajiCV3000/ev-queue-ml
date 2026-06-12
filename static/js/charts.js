@@ -61,7 +61,7 @@ function initCharts() {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Max Queue Length',
+                label: 'Current Queue Length',
                 data: queueLengthData,
                 fill: false,
                 borderColor: '#2196F3',
@@ -101,8 +101,8 @@ function updateCharts(data) {
     // Add new data points
     const waitTimeMinutes = data.metrics.average_wait_time / 60;
     waitTimeData.push(waitTimeMinutes);
-    
-    queueLengthData.push(data.metrics.max_queue_length);
+
+    queueLengthData.push(data.metrics.current_queue_length);
     
     // Add step number as label
     labels.push(data.step);

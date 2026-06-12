@@ -70,9 +70,39 @@ def initialize_simulation():
 
 evs, stations, routes, simulation = initialize_simulation()
 
+
+def load_policy_comparison():
+    """Load high-density policy comparison from results/_agg.json."""
+    comparison_file = os.path.join(RESULTS_DIR, '_agg.json')
+    if not os.path.isfile(comparison_file):
+        return []
+
+    try:
+        import json
+        with open(comparison_file, 'r') as f:
+            data = json.load(f)
+
+        high_density = [row for row in data if row.get('scenario') == 'high']
+        selected_policies = {row['policy']: row for row in high_density if row['policy'] in ['greedy', 'nearest', 'rl']}
+
+        return [
+            {
+                'policy': policy,
+                'average_wait_time': f"{int(row['average_wait_time'] / 60)}:{int(row['average_wait_time'] % 60):02d}",
+                'avg_queue_length': f"{row['avg_queue_length']:.1f}",
+                'completion_rate': f"{row['completion_rate'] * 100:.1f}%",
+                'avg_station_utilization': f"{row['avg_station_utilization']:.1%}",
+            }
+            for policy, row in [(p, selected_policies[p]) for p in ['greedy', 'nearest', 'rl'] if p in selected_policies]
+        ]
+    except Exception:
+        return []
+
+
 @app.route('/')
 def index():
-    return render_template('index.html', api_key=config.GOOGLE_MAPS_API_KEY)
+    policy_comparison = load_policy_comparison()
+    return render_template('index.html', api_key=config.GOOGLE_MAPS_API_KEY, policy_comparison=policy_comparison)
 
 @app.route('/health')
 def health():
@@ -156,7 +186,7 @@ def get_policy_info():
     fallback_active = getattr(policy, 'fallback_active', False)
     return jsonify({
         'active': simulation.policy_name,
-        'available': list_policies() + ['rl'],
+        'available': list_policies(),
         'model_loaded': model_loaded,
         'fallback_active': fallback_active,
     })
@@ -170,7 +200,7 @@ def set_policy():
     if not policy_name:
         return jsonify({'error': 'policy field required'}), 400
 
-    available = list_policies() + ['rl']
+    available = list_policies()
     if policy_name not in available:
         return jsonify({'error': f'unknown policy: {policy_name}'}), 400
 
