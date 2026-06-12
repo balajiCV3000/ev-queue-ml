@@ -16,6 +16,7 @@ const numRoutesInput = document.getElementById('numRoutes');
 const generateBtn = document.getElementById('generateBtn');
 
 const avgWaitTimeEl = document.getElementById('avgWaitTime');
+const currentQueueLengthEl = document.getElementById('currentQueueLength');
 const maxQueueLengthEl = document.getElementById('maxQueueLength');
 const completionRateEl = document.getElementById('completionRate');
 const abandonedRateEl = document.getElementById('abandonedRate');
@@ -269,14 +270,15 @@ function updateMetrics(metrics) {
     const waitMinutes = Math.floor(metrics.average_wait_time / 60);
     const waitSeconds = Math.floor(metrics.average_wait_time % 60);
     avgWaitTimeEl.textContent = `${waitMinutes}:${waitSeconds.toString().padStart(2, '0')}`;
-    
+
+    currentQueueLengthEl.textContent = metrics.current_queue_length;
     maxQueueLengthEl.textContent = metrics.max_queue_length;
-    
+
     const completionPercent = (metrics.completion_rate * 100).toFixed(1);
     completionRateEl.textContent = `${completionPercent}%`;
-    
+
     const abandonedPercent = (metrics.abandoned_rate * 100).toFixed(1);
     abandonedRateEl.textContent = `${abandonedPercent}%`;
-    
+
     optimizationTimeEl.textContent = `${(metrics.optimization_time * 1000).toFixed(0)}ms`;
 }

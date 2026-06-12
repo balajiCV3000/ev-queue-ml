@@ -23,6 +23,7 @@ class Simulation:
             'average_wait_time': 0,
             'max_queue_length': 0,
             'avg_queue_length': 0,
+            'current_queue_length': 0,
             'station_utilization': {},
             'station_utilization_time_avg': {},
             'avg_station_utilization': 0,
@@ -359,6 +360,7 @@ class Simulation:
         self.metrics['average_wait_time'] = average_wait_time
         self.metrics['max_queue_length'] = self._peak_queue_length
         self.metrics['avg_queue_length'] = avg_queue_length
+        self.metrics['current_queue_length'] = current_total_queue
         self.metrics['completion_rate'] = completion_rate
         self.metrics['abandoned_rate'] = abandoned_rate
         self.metrics['total_travel_distance_km'] = self._total_travel_distance_km

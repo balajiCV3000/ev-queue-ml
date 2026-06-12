@@ -78,7 +78,17 @@
                     </div>
                     <button id="generateBtn" class="btn btn-primary">Generate New Data</button>
                 </div>
-                
+
+                <div class="panel">
+                    <h3>Assignment Policy</h3>
+                    <div class="form-group">
+                        <select id="policySelect" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                            <option value="">Loading policies...</option>
+                        </select>
+                    </div>
+                    <div id="policyStatusBadge" style="font-size: 12px; color: #777; min-height: 20px;"></div>
+                </div>
+
                 <div class="panel">
                     <h3>Performance Metrics</h3>
                     <div class="metric">
@@ -86,7 +96,11 @@
                         <div id="avgWaitTime" class="metric-value">0s</div>
                     </div>
                     <div class="metric">
-                        <div class="metric-name">Max Queue Length:</div>
+                        <div class="metric-name">Current Queue Length:</div>
+                        <div id="currentQueueLength" class="metric-value">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-name">Peak Queue Length:</div>
                         <div id="maxQueueLength" class="metric-value">0</div>
                     </div>
                     <div class="metric">
@@ -112,7 +126,39 @@
                         <canvas id="queueLengthChart"></canvas>
                     </div>
                 </div>
-                
+
+                <div class="panel results-section">
+                    <h3>Policy Comparison</h3>
+                    <p style="font-size: 12px; color: #777; margin-bottom: 10px;">High-density traffic scenario</p>
+                    {% if policy_comparison %}
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Policy</th>
+                                    <th>Avg Wait Time</th>
+                                    <th>Avg Queue Length</th>
+                                    <th>Completion Rate</th>
+                                    <th>Utilization</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in policy_comparison %}
+                                    <tr>
+                                        <td><strong>{{ row.policy }}</strong></td>
+                                        <td>{{ row.average_wait_time }}</td>
+                                        <td>{{ row.avg_queue_length }}</td>
+                                        <td>{{ row.completion_rate }}</td>
+                                        <td>{{ row.avg_station_utilization }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <p style="font-size: 12px; margin-top: 10px;"><a href="{{ url_for('results_page') }}">View full comparison →</a></p>
+                    {% else %}
+                        <p class="results-placeholder">Run <code>python -m experiments/run_grid.py</code> to generate comparison data.</p>
+                    {% endif %}
+                </div>
+
                 <div class="panel">
                     <h3>EV Journey Timeline</h3>
                     <div class="form-group">
@@ -141,6 +187,7 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/policy.js') }}"></script>
     <script src="{{ url_for('static', filename='js/logs.js') }}"></script>
     <script src="{{ url_for('static', filename='js/journey.js') }}"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
