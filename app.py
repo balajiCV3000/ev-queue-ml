@@ -12,20 +12,12 @@ RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'results'
 
 
 class _TrustedHostsMiddleware:
-    _allowed = {
-        'evcharge.duckdns.org',
-        'localhost',
-        '127.0.0.1',
-        '::1',
-        '3.108.5.112',
-    }
-
     def __init__(self, app):
         self.app = app
 
     def __call__(self, environ, start_response):
         host = environ.get('HTTP_HOST', '').split(':')[0].lower()
-        if host not in self._allowed:
+        if host not in config.trusted_hosts():
             start_response('400 Bad Request', [('Content-Type', 'text/plain')])
             return [b'Bad Request']
         return self.app(environ, start_response)
