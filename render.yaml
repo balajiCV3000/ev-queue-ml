@@ -14,6 +14,8 @@ services:
       - key: REQUIRE_MAPS_API_KEY
         value: "true"
       - key: BOOTSTRAP_SIMULATION
+        value: "true"
+      - key: USE_MAPS_FOR_ROUTES
         value: "false"
       - key: DEBUG
         value: "false"

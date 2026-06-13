@@ -35,6 +35,7 @@ SIMULATE_TRAVEL_ENERGY = os.getenv("SIMULATE_TRAVEL_ENERGY", "true").strip().low
 SIMULATE_TRAVEL_TIME = os.getenv("SIMULATE_TRAVEL_TIME", "false").strip().lower() == "true"
 TRAVEL_SPEED_KMH = float(os.getenv("TRAVEL_SPEED_KMH", "30"))
 SIM_SEED = int(os.getenv("SIM_SEED", "42"))
+USE_MAPS_FOR_ROUTES = os.getenv("USE_MAPS_FOR_ROUTES", "true").strip().lower() == "true"
 
 _DEFAULT_TRUSTED_HOSTS = {
     "localhost",

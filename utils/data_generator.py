@@ -248,6 +248,17 @@ def generate_routes_parallel(nodes, num_routes, max_workers=10, existing_routes=
 
 def get_route_data(origin, destination, route_id):
     """Get route data between two points with error handling"""
+    if not config.USE_MAPS_FOR_ROUTES:
+        route = interpolate_route(origin, destination, segment_km=0.5)
+        distance = calculate_distance(origin, destination) / 1000
+        return {
+            "id": f"route-{route_id+1}",
+            "origin": origin,
+            "destination": destination,
+            "points": route,
+            "distance": distance,
+        }, route_id
+
     try:
         route_data = get_route(origin, destination)
         distance = route_data["distance"] / 1000  # Convert m to km

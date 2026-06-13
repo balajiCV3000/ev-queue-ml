@@ -126,8 +126,29 @@ def results_assets(filename):
 def how_it_works():
     return render_template('how_it_works.html')
 
+def ensure_simulation_data():
+    """Bootstrap simulation data when the server started without it."""
+    global evs, stations, routes, simulation
+    if evs:
+        return True
+
+    print("No simulation data loaded; bootstrapping now...")
+    evs_local, stations_local, routes_local, simulation_local = initialize_simulation()
+    evs, stations, routes, simulation = evs_local, stations_local, routes_local, simulation_local
+    return bool(evs)
+
+
 @app.route('/api/simulation/start', methods=['POST'])
 def start_simulation():
+    if not ensure_simulation_data():
+        return jsonify({
+            'success': False,
+            'error': 'No simulation data available. Use Generate New Data first.',
+        }), 400
+
+    if simulation.completed:
+        simulation.reset()
+
     success = simulation.start()
     return jsonify({'success': success})
 

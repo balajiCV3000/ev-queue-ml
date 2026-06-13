@@ -53,6 +53,9 @@ function startSimulation() {
             
             // Start regular updates
             updateInterval = setInterval(updateSimulationState, 1000 / simulationSpeed);
+        } else {
+            console.error('Failed to start simulation:', data.error || data);
+            alert(data.error || 'Failed to start simulation. Try Generate New Data first.');
         }
     })
     .catch(error => console.error('Error starting simulation:', error));
