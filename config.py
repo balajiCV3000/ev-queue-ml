@@ -36,6 +36,25 @@ SIMULATE_TRAVEL_TIME = os.getenv("SIMULATE_TRAVEL_TIME", "false").strip().lower(
 TRAVEL_SPEED_KMH = float(os.getenv("TRAVEL_SPEED_KMH", "30"))
 SIM_SEED = int(os.getenv("SIM_SEED", "42"))
 
+_DEFAULT_TRUSTED_HOSTS = {
+    "localhost",
+    "127.0.0.1",
+    "::1",
+}
+
+
+def trusted_hosts():
+    """Hosts allowed by the Host-header middleware."""
+    hosts = set(_DEFAULT_TRUSTED_HOSTS)
+    for host in os.getenv("TRUSTED_HOSTS", "").split(","):
+        host = host.strip().lower()
+        if host:
+            hosts.add(host)
+    render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip().lower()
+    if render_host:
+        hosts.add(render_host)
+    return hosts
+
 
 def validate_required_config():
     if REQUIRE_MAPS_API_KEY and not GOOGLE_MAPS_API_KEY:
